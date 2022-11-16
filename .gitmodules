@@ -1,0 +1,4 @@
+[submodule "rust-editline"]
+	path = rust-editline
+	url = https://github.com/CodesOtakuYT/rust-editline.git
+	branch = patch-1
