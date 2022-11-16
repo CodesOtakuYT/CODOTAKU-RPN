@@ -1,11 +1,11 @@
 extern crate editline;
 
+use f64;
 use std::collections::HashMap;
 use std::f64::consts::{E, PI};
-use f64;
 
-const CMDS : [&'static str; 10] = [
-    "log", "cos", "sin", "tan", "sqrt", "abs", "PI", "EPSILON", "INFINITY", "E"
+const CMDS: [&'static str; 10] = [
+    "log", "cos", "sin", "tan", "sqrt", "abs", "PI", "EPSILON", "INFINITY", "E",
 ];
 
 fn list_possib(word: &str) -> Vec<&str> {
@@ -29,21 +29,23 @@ fn complete(word: &str) -> Option<&str> {
     }
 }
 
-extern fn do_exit() -> editline::Status {
+extern "C" fn do_exit() -> editline::Status {
     return editline::Status::EOF;
 }
 
-const history_filename: &str = "/tmp/codotaku.history";
+const HISTORY_FILENAME: &str = "/tmp/codotaku.history";
 
 fn main() {
-    println!("CODOTAKU RPN 1.0.0\nPress [Enter] or [Ctrl + X] without typing anything to exit properly.");
+    println!(
+        "CODOTAKU RPN 1.0.0\nPress [Enter] or [Ctrl + X] without typing anything to exit properly."
+    );
 
     let mut stack = Vec::new();
     let mut variables = HashMap::new();
 
     editline::set_list_possib(list_possib);
     editline::set_complete(complete);
-    editline::read_history(history_filename);
+    editline::read_history(HISTORY_FILENAME);
     editline::bind_key(editline::Key::Ctrl('x'), do_exit);
 
     loop {
@@ -61,35 +63,35 @@ fn main() {
                     let result = value1 + value0;
                     stack.push(result);
                     println!("\t\t{value1} + {value0} = {result}");
-                },
+                }
                 "-" => {
                     let value0 = stack.pop().expect("'+' Requires 2 additional operands");
                     let value1 = stack.pop().expect("'+' Requires 1 additional operand");
                     let result = value1 - value0;
                     stack.push(result);
                     println!("\t\t{value1} - {value0} = {result}");
-                },
+                }
                 "*" => {
                     let value0 = stack.pop().expect("'+' Requires 2 additional operands");
                     let value1 = stack.pop().expect("'+' Requires 1 additional operand");
                     let result = value1 * value0;
                     stack.push(result);
                     println!("\t\t{value1} * {value0} = {result}");
-                },
+                }
                 "/" => {
                     let value0 = stack.pop().expect("'+' Requires 2 additional operands");
                     let value1 = stack.pop().expect("'+' Requires 1 additional operand");
                     let result = value1 / value0;
                     stack.push(result);
                     println!("\t\t{value1} / {value0} = {result}");
-                },
+                }
                 "%" => {
                     let value0 = stack.pop().expect("'+' Requires 2 additional operands");
                     let value1 = stack.pop().expect("'+' Requires 1 additional operand");
                     let result = value1 % value0;
                     stack.push(result);
                     println!("\t\t{value1} % {value0} = {result}");
-                },
+                }
                 "^" => {
                     let value0 = stack.pop().expect("'+' Requires 2 additional operands");
                     let value1 = stack.pop().expect("'+' Requires 1 additional operand");
@@ -143,9 +145,7 @@ fn main() {
                 "EPSILON" => {
                     stack.push(f64::EPSILON);
                 }
-                "INFINITY" => {
-                    stack.push(f64::INFINITY)
-                }
+                "INFINITY" => stack.push(f64::INFINITY),
                 _ => {
                     let value = token.parse::<f64>();
                     stack.push(match value {
@@ -157,7 +157,9 @@ fn main() {
                                 None => {
                                     let prompt = format!("\t{}? ", &token);
                                     let input = editline::readline(&prompt).unwrap();
-                                    let result = input.parse::<f64>().expect(&format!("Expected a number, got {token}"));
+                                    let result = input
+                                        .parse::<f64>()
+                                        .expect(&format!("Expected a number, got {token}"));
                                     variables.insert(token, result);
                                     result
                                 }
@@ -176,5 +178,5 @@ fn main() {
         variables.clear();
     }
 
-    editline::write_history(history_filename);
+    editline::write_history(HISTORY_FILENAME);
 }
